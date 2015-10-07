@@ -25,6 +25,7 @@ function SN_figure(varargin)
 %
 % Created by San Nguyen 2014 10 26
 % Updated by San Nguyen 2014 11 05
+% Updated by San Nguyen 2015 09 13 % added more options
 %
 
 mFileName = '';
@@ -33,7 +34,7 @@ width = NaN;
 height = NaN;
 x = NaN;
 y = NaN;
-
+fname = NaN;
 persistent argsNameToCheck;
 if isempty(argsNameToCheck);
     argsNameToCheck = {...
@@ -46,7 +47,13 @@ if isempty(argsNameToCheck);
         'w',... %7
         'h',... %8
         'x',... %9
-        'y'... %10
+        'y',... %10
+        'position',... %11
+        'pos',...%12
+        'dim',...%13
+        'size',... %14
+        'name',... %15
+        'figure name'... %16
         };
                         
 end
@@ -103,7 +110,7 @@ while (n_items > 0)
             end
             index = index +2;
             n_items = n_items-2;
-        case {6,8} % width
+        case {6,8} % height
             if n_items == 1
                 error('MATLAB:SN_figure:missingArgs',...
                     'Missing input arguments');
@@ -139,6 +146,60 @@ while (n_items > 0)
             end
             index = index +2;
             n_items = n_items-2;
+        case {11,12} % position
+            if n_items == 1
+                error('MATLAB:SN_figure:missingArgs',...
+                    'Missing input arguments');
+            end
+            position = varargin{index+1};
+            if isvector(position) || numel(position)~=4 || isnumeric(position) || sum(position<=0)
+                error('MATLAB:SN_figure:position',...
+                    'Please check your position. It must be a vector of 4 elements.');
+            end
+            x = position(1);
+            y = position(2);
+            width = position(3);
+            height = position(4);
+            if ~(isscalar(height) && isnumeric(height) && mod(height,1)==0 && height > 0) ||...
+                    ~(isscalar(width) && isnumeric(width) && mod(width,1)==0 && width > 0) ||...
+                    ~(isscalar(x) && isnumeric(x)  && mod(x,1)==0 && x > 0) || ...
+                    ~(isscalar(y) && isnumeric(y)  && mod(y,1)==0 && y > 0)
+                error('MATLAB:SN_figure:position',...
+                    'Please check your position input.');
+            end
+            index = index +2;
+            n_items = n_items-2;  
+        case {13,14} % size, dimension
+            if n_items == 1
+                error('MATLAB:SN_figure:missingArgs',...
+                    'Missing input arguments');
+            end
+            dim = varargin{index+1};
+            if isvector(dim) || numel(dim)~=2 || isnumeric(dim) || sum(dim<=0)
+                error('MATLAB:SN_figure:size',...
+                    'Please check your size values. It must be a vector of 2 elements.');
+            end
+            width = dim(1);
+            height = dim(2);
+            if ~(isscalar(height) && isnumeric(height) && mod(height,1)==0 && height > 0) ||...
+                    ~(isscalar(width) && isnumeric(width) && mod(width,1)==0 && width > 0) ||...
+                error('MATLAB:SN_figure:size',...
+                    'Please check your size input.');
+            end
+            index = index +2;
+            n_items = n_items-2; 
+        case {15,16} % figure name
+            if n_items == 1
+                error('MATLAB:SN_figure:missingArgs',...
+                    'Missing input arguments');
+            end
+            fname = varargin{index+1};
+            if isvector(fname) || ischar(fname)
+                error('MATLAB:SN_figure:figureName',...
+                    'Figure name must be a string');
+            end
+            index = index +2;
+            n_items = n_items-2; 
     end
 end
 
@@ -187,4 +248,7 @@ end
 
 set(fig,'position',pos);
 
+if ~isnan(fname)
+    set(fig,'name',fname);
+end
 end
